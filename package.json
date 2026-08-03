@@ -1,0 +1,23 @@
+{
+  "name": "arca",
+  "private": true,
+  "version": "0.1.0",
+  "description": "Arca — Gerenciador Financeiro Pessoal",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "node scripts/check-rules.mjs && tsc --noEmit && vite build",
+    "preview": "vite preview",
+    "check": "node scripts/check-rules.mjs"
+  },
+  "dependencies": {
+    "dexie": "^4.0.8",
+    "preact": "^10.24.0",
+    "@preact/signals": "^1.3.0"
+  },
+  "devDependencies": {
+    "typescript": "^5.6.0",
+    "vite": "^5.4.0",
+    "@preact/preset-vite": "^2.9.0"
+  }
+}
