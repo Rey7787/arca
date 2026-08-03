@@ -59,6 +59,11 @@ export interface TransactionsAPI {
   getById(id: string): Transaction | undefined;
   query(filter?: TransactionFilter): Transaction[];
   totalsByMonth(month: string): { income: Money; expense: Money; balance: Money };
+  /**
+   * Apaga de vez os lançamentos marcados como excluídos no mês.
+   * Roda no fechamento do mês — até lá o soft delete sustenta o desfazer.
+   */
+  purgeDeleted(month: string): Promise<number>;
 }
 
 const index = new MemoryIndex();
@@ -108,6 +113,17 @@ export const transactionsModule: ArcaModule<TransactionsAPI> = {
         }
 
         return results.sort((a, b) => b.date.localeCompare(a.date));
+      },
+
+      async purgeDeleted(month) {
+        const alvos = [...index.byId.values()].filter(
+          (t) => t.deletedAt && t.date.startsWith(month),
+        );
+        for (const t of alvos) {
+          await repo.hardDelete(t.id);
+          index.remove(t.id);
+        }
+        return alvos.length;
       },
 
       totalsByMonth(month) {

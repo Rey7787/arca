@@ -9,6 +9,7 @@ export type ViewId =
   | 'categories'
   | 'reports'
   | 'notes'
+  | 'goals'
   | 'backup'
   | 'settings';
 
@@ -30,7 +31,7 @@ const NAV: NavItem[] = [
   { id: 'categories', label: 'Categorias', icon: '◈' },
   { id: 'reports', label: 'Relatórios', icon: '◔' },
   { id: 'notes', label: 'Anotações', icon: '❏' },
-  { id: null, label: 'Metas', icon: '◎' },
+  { id: 'goals', label: 'Metas', icon: '◎' },
   { id: 'backup', label: 'Backup', icon: '⛁' },
   { id: 'settings', label: 'Configurações', icon: '⚙' },
 ];

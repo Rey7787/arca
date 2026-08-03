@@ -16,6 +16,7 @@ import { currentMonth } from '@/shared/format';
 import { BackupView } from '@/ui/BackupView';
 import { CategoriesView } from '@/ui/CategoriesView';
 import { Dashboard } from '@/ui/Dashboard';
+import { GoalsView } from '@/ui/GoalsView';
 import { NotesView } from '@/ui/NotesView';
 import { RecurrencesView } from '@/ui/RecurrencesView';
 import { ReportsView } from '@/ui/ReportsView';
@@ -86,6 +87,7 @@ function App() {
       {view === 'categories' && <CategoriesView />}
       {view === 'reports' && <ReportsView key={reloadKey} month={month} />}
       {view === 'notes' && <NotesView key={reloadKey} />}
+      {view === 'goals' && <GoalsView key={reloadKey} month={month} />}
       {view === 'backup' && (
         <BackupView onRestored={async () => {
           // Depois de restaurar, os módulos precisam recarregar os índices em

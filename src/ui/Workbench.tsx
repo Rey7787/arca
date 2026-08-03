@@ -38,6 +38,10 @@ export function Workbench({ month, onChangeMonth }: { month: string; onChangeMon
   // funcionando depois que ele some — o histórico não depende do toast.
   const [toast, setToast] = useState<string | null>(null);
 
+  // Fechamento do mês
+  const [confirmandoFecho, setConfirmandoFecho] = useState(false);
+  const [fechoAviso, setFechoAviso] = useState('');
+
   useEffect(() => {
     let timer: ReturnType<typeof setTimeout> | undefined;
 
@@ -101,6 +105,7 @@ export function Workbench({ month, onChangeMonth }: { month: string; onChangeMon
       });
   })();
 
+  const fechado = plan.isClosed(month);
   const categoryList = categories.list();
   const activeCategoryId = categoryId || categoryList[0]?.id || '';
 
@@ -159,6 +164,44 @@ export function Workbench({ month, onChangeMonth }: { month: string; onChangeMon
         </div>
       </div>
 
+      {fechado ? (
+        <div class="notice closed">
+          <span>
+            <strong>Mês fechado.</strong> Os lançamentos ficam somente para leitura.
+          </span>
+          <button class="ghost" onClick={async () => { await plan.reopen(month); rerender(); }}>
+            Reabrir
+          </button>
+        </div>
+      ) : (
+        <div class="close-row">
+          {confirmandoFecho ? (
+            <>
+              <span class="hint" style={{ margin: 0 }}>
+                Fechar apaga de vez os lançamentos excluídos e limpa o histórico de desfazer.
+              </span>
+              <button class="danger" onClick={async () => {
+                const { purged } = await plan.close(month);
+                setConfirmandoFecho(false);
+                setFechoAviso(
+                  purged > 0
+                    ? `Mês fechado. ${purged} lançamento(s) excluído(s) foram apagados de vez.`
+                    : 'Mês fechado.',
+                );
+                rerender();
+              }}>
+                Sim, fechar {formatMonth(month)}
+              </button>
+              <button class="ghost" onClick={() => setConfirmandoFecho(false)}>Cancelar</button>
+            </>
+          ) : (
+            <button class="ghost" onClick={() => setConfirmandoFecho(true)}>Fechar o mês</button>
+          )}
+        </div>
+      )}
+
+      {fechoAviso && <p class="notice ok">{fechoAviso}</p>}
+
       <div class="totals">
         <div>
           <div class="total-label">Saldo inicial</div>
@@ -171,7 +214,7 @@ export function Workbench({ month, onChangeMonth }: { month: string; onChangeMon
               <button onClick={saveOpening}>Salvar</button>
             </div>
           ) : (
-            <button class="total-value as-button"
+            <button class="total-value as-button" disabled={fechado}
               onClick={() => {
                 setOpeningDraft(opening ? (opening / 100).toLocaleString('pt-BR', { minimumFractionDigits: 2 }) : '');
                 setEditingOpening(true);
@@ -196,6 +239,7 @@ export function Workbench({ month, onChangeMonth }: { month: string; onChangeMon
         </div>
       </div>
 
+      {!fechado && (
       <div class="card">
         <div class="field">
           <label for="desc">{editing ? 'Editando lançamento' : 'Descrição'}</label>
@@ -241,6 +285,7 @@ export function Workbench({ month, onChangeMonth }: { month: string; onChangeMon
           {editing && <button class="ghost" onClick={resetForm}>Cancelar</button>}
         </div>
       </div>
+      )}
 
       <div class="filters">
         <input type="search" placeholder="Buscar na descrição" value={search}
@@ -281,8 +326,12 @@ export function Workbench({ month, onChangeMonth }: { month: string; onChangeMon
                 <span class={`amount ${t.type}`}>
                   {t.type === 'expense' ? '−' : '+'}{formatMoney(t.amount)}
                 </span>
-                <button class="ghost" onClick={() => startEdit(t)}>Editar</button>
-                <button class="ghost" onClick={() => void api.remove(t.id)}>Excluir</button>
+                {!fechado && (
+                  <>
+                    <button class="ghost" onClick={() => startEdit(t)}>Editar</button>
+                    <button class="ghost" onClick={() => void api.remove(t.id)}>Excluir</button>
+                  </>
+                )}
               </span>
             </li>
           );

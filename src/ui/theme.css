@@ -778,3 +778,45 @@ textarea {
   display: flex; justify-content: space-between; align-items: center;
   margin-top: 0.9rem; color: var(--text-faint); font-size: 0.75rem;
 }
+
+/* ── Fechamento do mês ──────────────────────────────────── */
+
+.close-row { display: flex; align-items: center; gap: 0.75rem; flex-wrap: wrap; margin-bottom: 1rem; }
+
+.notice.closed {
+  display: flex; align-items: center; justify-content: space-between; gap: 1rem;
+  background: color-mix(in srgb, var(--brass) 12%, transparent);
+  border: 1px solid color-mix(in srgb, var(--brass) 45%, transparent);
+  margin-bottom: 1.25rem;
+}
+
+/* ── Metas ──────────────────────────────────────────────── */
+
+.goals { list-style: none; margin: 0; padding: 0; }
+.goals li { padding: 0.85rem 0; border-bottom: 1px solid var(--border); }
+.goals li:last-child { border-bottom: none; }
+
+.goal-head {
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 1rem; flex-wrap: wrap;
+}
+
+.goal-bar {
+  height: 7px; margin-top: 0.6rem; border-radius: 4px;
+  background: color-mix(in srgb, var(--border) 70%, transparent);
+  overflow: hidden;
+}
+.goal-bar > i {
+  display: block; height: 100%; border-radius: 4px;
+  transition: width 260ms cubic-bezier(0.2, 0.8, 0.3, 1);
+}
+.goal-bar > i.over {
+  background: repeating-linear-gradient(
+    45deg, var(--alert), var(--alert) 6px,
+    color-mix(in srgb, var(--alert) 60%, transparent) 6px,
+    color-mix(in srgb, var(--alert) 60%, transparent) 12px
+  );
+}
+
+.goal-note { display: block; margin-top: 0.35rem; font-size: 0.75rem; color: var(--text-faint); }
+.goal-note.over { color: var(--alert); }
