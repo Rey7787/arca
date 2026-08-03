@@ -9,6 +9,8 @@ export interface Transaction {
   categoryId: string;
   description: string;
   notes?: string;
+  /** Preenchido quando o lançamento veio de uma recorrência. */
+  recurrenceId?: string;
   deletedAt?: number; // soft delete: é o que sustenta o undo de exclusão
   createdAt: number;
   updatedAt: number;

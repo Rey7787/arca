@@ -2,7 +2,15 @@ import type { ComponentChildren } from 'preact';
 import { ArcaMark } from './ArcaMark';
 import { Clock } from './Clock';
 
-export type ViewId = 'dashboard' | 'transactions' | 'categories' | 'backup' | 'settings';
+export type ViewId =
+  | 'dashboard'
+  | 'transactions'
+  | 'recurrences'
+  | 'categories'
+  | 'reports'
+  | 'notes'
+  | 'backup'
+  | 'settings';
 
 interface NavItem {
   id: ViewId | null; // null = ainda não existe
@@ -18,10 +26,11 @@ interface NavItem {
 const NAV: NavItem[] = [
   { id: 'dashboard', label: 'Visão geral', icon: '◱' },
   { id: 'transactions', label: 'Lançamentos', icon: '≡' },
+  { id: 'recurrences', label: 'Recorrentes', icon: '↻' },
   { id: 'categories', label: 'Categorias', icon: '◈' },
-  { id: null, label: 'Relatórios', icon: '◔' },
+  { id: 'reports', label: 'Relatórios', icon: '◔' },
+  { id: 'notes', label: 'Anotações', icon: '❏' },
   { id: null, label: 'Metas', icon: '◎' },
-  { id: null, label: 'Notas', icon: '❏' },
   { id: 'backup', label: 'Backup', icon: '⛁' },
   { id: 'settings', label: 'Configurações', icon: '⚙' },
 ];

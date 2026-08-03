@@ -735,3 +735,46 @@ button.primary {
   0%, 100% { opacity: 1; }
   50% { opacity: 0.35; }
 }
+
+/* ── Relatórios ─────────────────────────────────────────── */
+
+.bars {
+  display: flex; align-items: flex-end; gap: 0.75rem;
+  height: 11rem; padding: 0.5rem 0 0;
+}
+.bar-group { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 0.4rem; height: 100%; }
+.bar-pair { flex: 1; display: flex; align-items: flex-end; gap: 3px; width: 100%; justify-content: center; }
+.bar {
+  width: 30%; min-height: 2px; border-radius: 3px 3px 0 0;
+  transition: height 240ms cubic-bezier(0.2, 0.8, 0.3, 1);
+}
+.bar.income { background: linear-gradient(180deg, #58b897, var(--copper-dim)); }
+.bar.expense { background: linear-gradient(180deg, #d9705f, #8f3527); }
+.bar-group small { font-size: 0.7rem; color: var(--text-faint); }
+.bar-group small.atual { color: var(--text); font-weight: 600; }
+
+.legend-inline { display: flex; gap: 1.25rem; font-size: 0.8rem; color: var(--text-dim); margin-top: 0.75rem; }
+.legend-inline span { display: flex; align-items: center; gap: 0.4rem; }
+
+/* ── Anotações ──────────────────────────────────────────── */
+
+textarea {
+  width: 100%; padding: 0.7rem 0.85rem; resize: vertical;
+  background: rgba(255, 255, 255, 0.045);
+  border: 1px solid rgba(255, 255, 255, 0.10);
+  border-radius: 8px; color: var(--text);
+  font-family: inherit; font-size: 1rem; line-height: 1.5;
+  backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
+}
+
+.notes-grid {
+  display: grid; gap: 1rem; margin-top: 1rem;
+  grid-template-columns: repeat(auto-fill, minmax(17rem, 1fr));
+}
+.note h3 { margin: 0; font-size: 1rem; font-weight: 500; }
+.note.pinned { border-color: color-mix(in srgb, var(--brass) 40%, transparent); }
+.note-body { color: var(--text-dim); font-size: 0.9rem; white-space: pre-wrap; margin: 0.5rem 0 0; }
+.note-foot {
+  display: flex; justify-content: space-between; align-items: center;
+  margin-top: 0.9rem; color: var(--text-faint); font-size: 0.75rem;
+}
