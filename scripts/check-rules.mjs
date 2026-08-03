@@ -8,9 +8,12 @@
  * Roda no `npm run build`. Violação quebra o build de propósito.
  */
 import { readdir, readFile } from 'node:fs/promises';
+import { fileURLToPath } from 'node:url';
 import { join, relative } from 'node:path';
 
-const SRC = new URL('../src/', import.meta.url).pathname;
+// fileURLToPath e não .pathname: no Windows o pathname vem como "/C:/Users/..."
+// e a barra da frente vira um "C:\C:\..." impossível de abrir.
+const SRC = fileURLToPath(new URL('../src/', import.meta.url));
 
 const RULES = [
   {
