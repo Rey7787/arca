@@ -81,7 +81,8 @@ export const backupModule: ArcaModule<BackupAPI> = {
         for (const table of TABLES) {
           const records = (contents[table] ?? []) as Record<string, unknown>[];
           migrated[table] = records.map(
-            (r) => migrateRecord(r, table, header.schemaVersion, CURRENT_SCHEMA_VERSION) as Entity,
+            (r) =>
+              migrateRecord(r, table, header.schemaVersion, CURRENT_SCHEMA_VERSION) as unknown as Entity,
           );
         }
 

@@ -1,6 +1,7 @@
+import type { Table } from 'dexie';
 import { bus } from '@/core/events/bus';
 import { history } from '@/core/history/HistoryStack';
-import { db } from '@/core/storage/db';
+import { db, type EncryptedRecord } from '@/core/storage/db';
 import { Repository, type Entity } from '@/core/storage/repository';
 import type { ArcaModule, MenuItem, ModuleContext, RouteDefinition } from './types';
 
@@ -67,8 +68,15 @@ class ModuleRegistry {
     const profileId = this.profileId;
     return {
       profileId,
-      repository: <T extends Entity>(table: string) =>
-        new Repository<T>((db as never as Record<string, never>)[table], profileId),
+      repository: <T extends Entity>(table: string) => {
+        // O Dexie expõe as tabelas como propriedades da instância. Com
+        // noUncheckedIndexedAccess o acesso por string pode ser undefined,
+        // então erramos alto aqui em vez de estourar em outro lugar depois.
+        const tables = db as unknown as Record<string, Table<EncryptedRecord, string> | undefined>;
+        const store = tables[table];
+        if (!store) throw new Error(`Tabela desconhecida: ${table}`);
+        return new Repository<T>(store, profileId);
+      },
       bus,
       history,
       require: <T,>(id: string) => this.apis.get(id) as T | undefined,
