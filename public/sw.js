@@ -9,7 +9,7 @@
  * Os lançamentos vivem no IndexedDB, cifrados, e nada aqui os lê ou envia.
  * O cache guarda só o app em si: HTML, CSS, JavaScript e ícones.
  */
-const VERSION = 'arca-v1';
+const VERSION = 'arca-v2';
 const SHELL = ['./', './index.html', './manifest.webmanifest'];
 
 self.addEventListener('install', (event) => {

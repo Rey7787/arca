@@ -50,7 +50,7 @@ export function UnlockScreen({ onUnlocked }: Props) {
         <div class="panel">
           <div class="seam" data-open="true" />
           <header class="panel-brand">
-            <ArcaMark size={56} />
+            <ArcaMark size={44} />
             <h1 class="wordmark">Arca</h1>
           </header>
           <p class="subtitle">Anote este código antes de continuar</p>
@@ -79,7 +79,7 @@ export function UnlockScreen({ onUnlocked }: Props) {
       <div class="panel">
         <div class="seam" data-open="false" />
         <header class="panel-brand">
-          <ArcaMark size={56} />
+          <ArcaMark size={44} />
           <h1 class="wordmark">Arca</h1>
         </header>
         <p class="subtitle">Gerenciador financeiro pessoal</p>

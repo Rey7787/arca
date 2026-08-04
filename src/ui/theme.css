@@ -540,21 +540,75 @@ button.danger { background: var(--alert); border-color: var(--alert); color: #1a
 
 /* ── Celular: menu vira barra no rodapé ─────────────────── */
 
+/* ── Celular: menu vira barra no rodapé ─────────────────── */
+
 @media (max-width: 52rem) {
   .shell-grid { grid-template-columns: 1fr; }
+
   .sidebar {
     position: fixed; bottom: 0; left: 0; right: 0;
-    height: auto; flex-direction: row; gap: 0;
-    padding: 0.35rem; z-index: 30;
+    /* altura fixa: sem isso o menu tenta ocupar a tela inteira,
+       porque a base dele é uma coluna de 100dvh */
+    height: 4.25rem;
+    flex-direction: row; align-items: center; gap: 0;
+    padding: 0 0.25rem; z-index: 30;
     border-right: none; border-top: 1px solid var(--border);
-    overflow-x: auto;
+    overflow-x: auto; overflow-y: hidden;
+    -webkit-overflow-scrolling: touch;
   }
+
   .brand, .privacy-note { display: none; }
-  .sidebar nav { flex-direction: row; gap: 0.15rem; }
-  .nav-item { flex-direction: column; gap: 0.2rem; font-size: 0.65rem; padding: 0.5rem 0.6rem; white-space: nowrap; }
+
+  .sidebar nav { flex-direction: row; gap: 0.1rem; width: max-content; }
+
+  .nav-item {
+    width: auto; flex: 0 0 auto;
+    flex-direction: column; gap: 0.2rem;
+    font-size: 0.62rem; padding: 0.45rem 0.55rem;
+    white-space: nowrap;
+  }
+  .nav-item.active { box-shadow: inset 0 2px 0 var(--copper); }
   .nav-item.soon, .soon-tag { display: none; }
-  .content { padding: 1rem 1rem 5rem; }
+  .nav-icon { font-size: 1.05rem; }
+
+  .content { padding: 1rem 0.9rem 6rem; }
+  .content-head { margin-bottom: 0.25rem; }
+
+  .page-head h1 { font-size: 1.25rem; }
+  .month-picker span { min-width: 7rem; font-size: 0.875rem; }
+
+  .clock strong { font-size: 1.15rem; }
+  .clock small { font-size: 0.7rem; }
+
+  .stat-grid { grid-template-columns: repeat(2, 1fr); gap: 0.6rem; }
+  .stat-card { padding: 0.8rem; gap: 0.6rem; }
+  .stat-icon { width: 2rem; height: 2rem; font-size: 0.95rem; }
+  .stat-value { font-size: 1.05rem; }
+
+  .donut-row { justify-content: center; }
+  .toast { flex-wrap: wrap; border-radius: 14px; bottom: 5.25rem; }
 }
+
+/* Tela de entrada em telas estreitas: o painel tem que caber. */
+@media (max-width: 30rem) {
+  .shell { padding: 1rem; align-items: center; }
+
+  .panel {
+    max-width: 100%;
+    padding: 1.75rem 1.25rem 1.5rem;
+    border-radius: 14px;
+  }
+
+  .wordmark { font-size: 1.9rem; letter-spacing: 0.2em; text-indent: 0.2em; }
+  .panel-brand { gap: 0.7rem; }
+  .subtitle { font-size: 0.875rem; margin-bottom: 1.5rem; }
+
+  .shell .panel input[type='text'],
+  .shell .panel input[type='password'] { font-size: 1rem; padding: 0.8rem 0.85rem; }
+
+  .code { font-size: 0.8rem; letter-spacing: 0.04em; }
+}
+
 
 /* ── Relógio + contagem até o bloqueio ──────────────────── */
 
