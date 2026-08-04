@@ -13,40 +13,50 @@ export function registerServiceWorker(onUpdateReady: () => void): void {
   if (!('serviceWorker' in navigator)) return;
   if (import.meta.env.DEV) return; // em desenvolvimento atrapalha o hot reload
 
-  window.addEventListener('load', () => {
-    void navigator.serviceWorker
-      .register(`${import.meta.env.BASE_URL}sw.js`, { scope: import.meta.env.BASE_URL })
-      .then((registration) => {
-        // Caso 1: o worker novo JÁ terminou de instalar antes desta página
-        // carregar (deploy entre duas visitas). Nesse caso 'updatefound' não
-        // dispara mais e o aviso nunca apareceria — o app ficaria rodando a
-        // versão velha para sempre, já que o cache é cache-first.
-        if (registration.waiting && navigator.serviceWorker.controller) {
-          onUpdateReady();
-        }
+  // O boot é assíncrono (o banco abre antes de desenhar a primeira tela), então
+  // quando esta função roda o evento 'load' pode JÁ ter disparado. Esperar por
+  // ele nesse caso é esperar para sempre: o worker nunca é registrado, o app
+  // fica sem cache e o offline morre em silêncio. Por isso a checagem.
+  if (document.readyState === 'complete') {
+    registrar(onUpdateReady);
+  } else {
+    window.addEventListener('load', () => registrar(onUpdateReady), { once: true });
+  }
+}
 
-        // Caso 2: o worker novo chega com a página já aberta.
-        registration.addEventListener('updatefound', () => {
-          const novo = registration.installing;
-          if (!novo) return;
-          novo.addEventListener('statechange', () => {
-            if (novo.state === 'installed' && navigator.serviceWorker.controller) {
-              onUpdateReady();
-            }
-          });
-        });
+function registrar(onUpdateReady: () => void): void {
+  void navigator.serviceWorker
+    .register(`${import.meta.env.BASE_URL}sw.js`, { scope: import.meta.env.BASE_URL })
+    .then((registration) => {
+      // Caso 1: o worker novo JÁ terminou de instalar antes desta página
+      // carregar (deploy entre duas visitas). Nesse caso 'updatefound' não
+      // dispara mais e o aviso nunca apareceria — o app ficaria rodando a
+      // versão velha para sempre, já que o cache é cache-first.
+      if (registration.waiting && navigator.serviceWorker.controller) {
+        onUpdateReady();
+      }
 
-        // O navegador só checa atualização em navegação. Um PWA instalado pode
-        // ficar dias sem isso, então perguntamos de tempos em tempos e sempre
-        // que o app volta para o primeiro plano.
-        const checar = () => void registration.update().catch(() => undefined);
-        setInterval(checar, INTERVALO_CHECAGEM_MS);
-        document.addEventListener('visibilitychange', () => {
-          if (document.visibilityState === 'visible') checar();
+      // Caso 2: o worker novo chega com a página já aberta.
+      registration.addEventListener('updatefound', () => {
+        const novo = registration.installing;
+        if (!novo) return;
+        novo.addEventListener('statechange', () => {
+          if (novo.state === 'installed' && navigator.serviceWorker.controller) {
+            onUpdateReady();
+          }
         });
-      })
-      .catch(() => undefined);
-  });
+      });
+
+      // O navegador só checa atualização em navegação. Um PWA instalado pode
+      // ficar dias sem isso, então perguntamos de tempos em tempos e sempre
+      // que o app volta para o primeiro plano.
+      const checar = () => void registration.update().catch(() => undefined);
+      setInterval(checar, INTERVALO_CHECAGEM_MS);
+      document.addEventListener('visibilitychange', () => {
+        if (document.visibilityState === 'visible') checar();
+      });
+    })
+    .catch(() => undefined);
 }
 
 export async function applyUpdate(): Promise<void> {
