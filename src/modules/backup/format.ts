@@ -17,7 +17,7 @@ import { CURRENT_SCHEMA_VERSION } from '@/core/storage/db';
  */
 const MAGIC = 'ARCA';
 export const CURRENT_FORMAT_VERSION = 1;
-export const APP_VERSION = '0.3.0';
+export const APP_VERSION = __APP_VERSION__;
 
 export interface BackupHeader {
   formatVersion: number;

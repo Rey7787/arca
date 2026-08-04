@@ -1,0 +1,13 @@
+# Quebra de linha: LF no repositorio e no disco.
+# O runner do Actions e Linux; misturar CRLF ja rendeu aviso em todo commit.
+* text=auto eol=lf
+
+# Binarios: nunca converter.
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.ico binary
+*.webp binary
+*.woff binary
+*.woff2 binary
+*.arca binary
