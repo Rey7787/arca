@@ -6,7 +6,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "node scripts/check-rules.mjs && tsc --noEmit && vite build",
+    "build": "node scripts/check-rules.mjs && tsc --noEmit && vite build && node scripts/stamp-sw.mjs",
     "preview": "vite preview",
     "check": "node scripts/check-rules.mjs"
   },

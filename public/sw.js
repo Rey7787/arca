@@ -8,8 +8,13 @@
  * Regra que não pode ser quebrada: este worker NUNCA toca em dado do usuário.
  * Os lançamentos vivem no IndexedDB, cifrados, e nada aqui os lê ou envia.
  * O cache guarda só o app em si: HTML, CSS, JavaScript e ícones.
+ *
+ * A versão do cache NÃO é escrita à mão. O placeholder abaixo é substituído
+ * por scripts/stamp-sw.mjs depois do `vite build`, com a versão do package.json
+ * mais um hash do conteúdo de dist/. Assim é impossível esquecer de bumpar:
+ * mudou qualquer arquivo publicado, o cache velho é descartado sozinho.
  */
-const VERSION = 'arca-v2';
+const VERSION = 'arca-__ARCA_VERSION__';
 const SHELL = ['./', './index.html', './manifest.webmanifest'];
 
 self.addEventListener('install', (event) => {
@@ -64,6 +69,10 @@ self.addEventListener('fetch', (event) => {
 });
 
 // O app avisa quando o usuário aceitar a atualização.
+// Aceita string (formato antigo) e objeto, para não quebrar durante a troca:
+// enquanto o worker velho ainda controla a página, é ele quem recebe a mensagem.
 self.addEventListener('message', (event) => {
-  if (event.data === 'aplicar-atualizacao') self.skipWaiting();
+  const tipo = typeof event.data === 'string' ? event.data : event.data?.type;
+  if (tipo === 'aplicar-atualizacao') self.skipWaiting();
+  if (tipo === 'qual-versao') event.source?.postMessage({ type: 'versao', versao: VERSION });
 });

@@ -5,6 +5,7 @@ import { bus } from '@/core/events/bus';
 import { installShortcuts } from '@/core/history/shortcuts';
 import { applyUpdate, registerServiceWorker } from '@/core/platform/serviceWorker';
 import { registry } from '@/core/registry/ModuleRegistry';
+import { abrirBanco, AppDesatualizadoError, onAppDesatualizado } from '@/core/storage/db';
 import { backupModule } from '@/modules/backup';
 import { categoriesModule } from '@/modules/categories';
 import { notesModule } from '@/modules/notes';
@@ -28,6 +29,12 @@ import '@/ui/theme.css';
 
 // Registro dos módulos. Acrescentar patrimônio, investimentos ou documentos
 // no futuro é uma linha aqui — o núcleo não muda.
+//
+// ATENÇÃO: módulo que declara tabela nunca deve ser REMOVIDO daqui. A versão do
+// banco é definida por este conjunto; tirar um módulo faz a versão declarada
+// cair abaixo da versão que já está gravada no navegador, e todo mundo que já
+// usa a Arca cai na tela de "app desatualizado" sem saída. Para aposentar um
+// módulo, pare de mostrá-lo no menu e deixe a tabela declarada.
 registry.register(categoriesModule);
 registry.register(transactionsModule);
 registry.register(planModule);
@@ -102,10 +109,71 @@ function App() {
   );
 }
 
+/**
+ * Tela mostrada quando o banco no navegador está à frente deste código.
+ *
+ * Sem ela o Dexie estouraria dentro da primeira consulta e a pessoa veria
+ * tela branca, sem saber que basta recarregar.
+ */
+function AppDesatualizado() {
+  return (
+    <div class="unlock-wrap" style={{ display: 'grid', placeItems: 'center', minHeight: '100vh', padding: '24px' }}>
+      <div class="card" style={{ maxWidth: '380px', textAlign: 'center' }}>
+        <h1 style={{ fontSize: '1.1rem', marginBottom: '8px' }}>A Arca foi atualizada</h1>
+        <p style={{ opacity: 0.75, fontSize: '0.9rem', lineHeight: 1.5 }}>
+          Esta aba ainda está com a versão anterior. Recarregue para continuar —
+          seus lançamentos estão intactos.
+        </p>
+        <button style={{ marginTop: '16px' }} onClick={() => location.reload()}>
+          Recarregar
+        </button>
+      </div>
+    </div>
+  );
+}
+
 // A Arca é escura, ponto. Tema claro foi removido: o usuário não o queria,
 // e tema que ninguém usa é código morto que ainda precisa ser mantido.
 document.documentElement.dataset['theme'] = 'dark';
 
-render(<App />, document.getElementById('app')!);
+const root = document.getElementById('app')!;
+
+/**
+ * Troca a interface inteira pela tela de "recarregue".
+ *
+ * Chamado em dois momentos: no boot, quando o banco já está à frente do
+ * código; e em tempo de execução, quando outra aba com versão mais nova pede
+ * para migrar o banco. No segundo caso o cofre é trancado antes — a partir
+ * dali nenhuma leitura é confiável.
+ */
+function mostrarDesatualizado(): void {
+  try {
+    lock();
+  } catch {
+    /* cofre já trancado, ou nem chegou a abrir */
+  }
+  render(<AppDesatualizado />, root);
+}
+
+onAppDesatualizado(mostrarDesatualizado);
+
+/**
+ * Boot. O banco é aberto DE PROPÓSITO aqui, antes de qualquer tela.
+ *
+ * Se deixássemos o Dexie abrir sozinho na primeira consulta, um banco à frente
+ * do código estouraria lá dentro, sem ninguém para capturar — tela branca.
+ */
+async function iniciar(): Promise<void> {
+  try {
+    await abrirBanco();
+  } catch (erro) {
+    // mostrarDesatualizado() já foi chamado lá do db.ts; nada a renderizar aqui.
+    if (erro instanceof AppDesatualizadoError) return;
+    throw erro;
+  }
+  render(<App />, root);
+}
+
+void iniciar();
 
 if (import.meta.hot) import.meta.hot.accept();
