@@ -90,3 +90,41 @@ A chave do cofre nunca é persistida para manter sessão viva.
 **[FEITO — 05/08/2026]** O projeto `teste-arca` foi apagado. Tinha usuários de teste criados de verdade e já não servia para mais nada.
 
 Painel → Settings → General → rolar até o fim → **Delete project**.
+
+---
+
+## Projeto de producao (05/08/2026)
+
+Projeto `arca` criado no Supabase, regiao `sa-east-1` (Sao Paulo).
+
+Configuracao de Auth:
+- **Confirm email: ligado** — fecha a ultima pendencia da etapa 0. O e-mail
+  nao serve para recuperar senha (isso e proibido pelas regras 1 e 2), mas
+  e o unico identificador do usuario: sem confirmacao, um e-mail digitado
+  errado deixa o cofre inacessivel para sempre.
+- Secure email change: ligado
+- Secure password change: ligado
+- Require current password when updating: ligado — a Arca precisa da senha
+  antiga para decifrar e recifrar o cofre
+- Minimum password length: 12 — a senha deriva a chave AES, entao senha
+  curta e chave fraca contra ataque offline
+- Password requirements: letters and digits
+- Prevent use of leaked passwords: indisponivel no plano Free
+
+Banco:
+- `schema.sql` aplicado e verificado: `vaults` e `entries` com RLS ativo e
+  3 policies cada, nenhuma de DELETE
+- `expurgar_lapides()` com execute revogado (confirmado por
+  `has_function_privilege` = false)
+- Agendamento do expurgo via pg_cron: **ainda nao feito**
+
+Teste de RLS: rodado com dois usuarios descartaveis, 4 de 4 OK. Usuarios
+apagados em seguida.
+
+Pendencias novas:
+- SMTP proprio (Resend ou Brevo). O SMTP compartilhado do Free tem limite
+  baixo e entregabilidade ruim; com Confirm email ligado, ele vira gargalo
+  assim que houver mais de um punhado de cadastros.
+- Agendar `expurgar_lapides()` no pg_cron.
+- O `check-rules.mjs` so varre `src/` com `.ts`/`.tsx`. A pasta `supabase/`
+  fica fora do alcance das regras.
