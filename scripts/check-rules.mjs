@@ -48,6 +48,24 @@ const RULES = [
       'IV precisa vir de randomBytes(12) a cada gravação. IV reutilizado\n' +
       '   quebra a segurança do AES-GCM por completo.',
   },
+  {
+    id: 'sem-reset-nativo',
+    pattern: /resetPasswordForEmail/,
+    allow: [],
+    message:
+      'O reset nativo do Supabase troca a senha no servidor sem passar pelo\n' +
+      '   dispositivo: o login passaria a exigir a senha nova enquanto o cofre\n' +
+      '   continuaria cifrado com a chave antiga. Recuperacao so pelo codigo\n' +
+      '   de recuperacao da propria Arca. Ver docs/arca-etapa0-autenticacao.md',
+  },
+  {
+    id: 'sem-link-magico',
+    pattern: /signInWithOtp|\bmagiclink\b/,
+    allow: [],
+    message:
+      'Link magico loga sem senha, e sem senha nao ha como derivar a chave do\n' +
+      '   cofre: o usuario entraria e encontraria os proprios dados ilegiveis.',
+  },
 ];
 
 async function* walk(dir) {
