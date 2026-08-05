@@ -77,7 +77,7 @@ A chave do cofre nunca é persistida para manter sessão viva.
 
 ## Pendências para as próximas etapas
 
-**Adicionar ao `scripts/check-rules.mjs`:** quebrar o build se aparecer `resetPasswordForEmail` ou `signInWithOtp` no código. É a forma de garantir que as regras 1 e 2 sobrevivam a você mesmo daqui a seis meses.
+**[FEITO — commit 0772f76]** ~~Adicionar ao `scripts/check-rules.mjs`:~~ quebrar o build se aparecer `resetPasswordForEmail` ou `signInWithOtp` no código. É a forma de garantir que as regras 1 e 2 sobrevivam a você mesmo daqui a seis meses.
 
 **Troca de senha com sincronização ativa:** hoje o fluxo é decifra com a chave antiga → recifra com a nova → envia o `hashDeAuth` novo. Com vários dispositivos, se a recifragem subir pela metade (internet caindo no meio), outro aparelho baixa dados cifrados com a chave velha e não abre. Provável solução: versão da chave gravada junto com o cofre. Assunto da etapa de sincronização.
 
@@ -87,6 +87,6 @@ A chave do cofre nunca é persistida para manter sessão viva.
 
 ## Limpeza
 
-O projeto `teste-arca` pode ser apagado. Ele tem usuários de teste criados de verdade e não serve para mais nada.
+**[FEITO — 05/08/2026]** O projeto `teste-arca` foi apagado. Tinha usuários de teste criados de verdade e já não servia para mais nada.
 
 Painel → Settings → General → rolar até o fim → **Delete project**.
