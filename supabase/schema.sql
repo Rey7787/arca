@@ -1,15 +1,33 @@
 -- Arca: esquema de sincronizacao (Etapa 1)
 -- Seguro para rodar mais de uma vez.
 
+-- RECRIAR DO ZERO (destrutivo)
+-- Descomente as duas linhas abaixo apenas quando o banco estiver vazio
+-- ou quando voce quiser mesmo perder tudo. Elas existem porque
+-- "create table if not exists" nao altera tabela que ja existe.
+--
+-- drop table if exists public.entries cascade;
+-- drop table if exists public.vaults  cascade;
+
 -- TABELAS
 
+-- O cofre inteiro que um aparelho novo precisa para abrir com a senha.
+-- Nada aqui e legivel sem a senha do usuario, exceto o label, que por
+-- isso mesmo nao deve conter nome real.
 create table if not exists public.vaults (
-  user_id        uuid primary key references auth.users(id) on delete cascade,
-  salt_do_cofre  text        not null,
-  versao_chave   integer     not null default 1,
-  versao_formato integer     not null default 1,
-  criado_em      timestamptz not null default now(),
-  atualizado_em  timestamptz not null default now()
+  user_id             uuid primary key references auth.users(id) on delete cascade,
+  label               text        not null,
+  kdf_id              text        not null,
+  kdf_params          jsonb       not null,
+  salt                text        not null,
+  wrapped_master      text        not null,
+  wrapped_master_iv   text        not null,
+  recovery_salt       text        not null,
+  wrapped_recovery    text        not null,
+  wrapped_recovery_iv text        not null,
+  versao_chave        integer     not null default 1,
+  criado_em           timestamptz not null default now(),
+  atualizado_em       timestamptz not null default now()
 );
 
 create table if not exists public.entries (
