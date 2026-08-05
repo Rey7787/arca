@@ -117,3 +117,13 @@ as $$
    where apagado = true
      and apagado_em < now() - interval '180 days';
 $$;
+
+revoke execute on function public.expurgar_lapides() from public, anon, authenticated;
+
+-- AGENDAMENTO DO EXPURGO
+-- A funcao acima nao roda sozinha. Para agendar:
+--   Painel -> Database -> Extensions -> ativar pg_cron
+--   Painel -> Integrations -> Cron -> Create job
+--     nome: expurgar-lapides
+--     schedule: 0 4 * * 0        (domingo, 04:00 UTC)
+--     comando: select public.expurgar_lapides();
