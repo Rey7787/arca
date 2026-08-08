@@ -25,6 +25,9 @@ export class Repository<T extends Entity> {
       iv: sealed.iv,
       payload: sealed.payload,
       v: CURRENT_SCHEMA_VERSION,
+      atualizadoEm: Date.now(),
+      apagado: false,
+      // sincronizadoEm fica ausente de proposito: gravou, virou pendente.
     });
   }
 
@@ -38,6 +41,8 @@ export class Repository<T extends Entity> {
           iv: sealed.iv,
           payload: sealed.payload,
           v: CURRENT_SCHEMA_VERSION,
+          atualizadoEm: Date.now(),
+          apagado: false,
         };
       }),
     );

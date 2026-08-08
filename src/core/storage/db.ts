@@ -8,6 +8,19 @@ export interface EncryptedRecord {
   iv: Uint8Array;
   payload: Uint8Array;
   v: number; // versão do schema do dado lá dentro
+
+  // --- Campos do SYNC. Ficam FORA do envelope porque o servidor precisa
+  // enxergá-los para ordenar o que mudou e expurgar lápides. Não confundir
+  // com o `deletedAt` de transactions, que vive DENTRO do envelope e serve
+  // a outra pergunta: "o usuário apagou e ainda pode desfazer?".
+  // Aqui `apagado` significa "saiu de vez, propague para os outros aparelhos".
+
+  /** Carimbo local da última gravação (epoch ms). */
+  atualizadoEm: number;
+  /** Lápide de sync: exclusão definitiva. */
+  apagado: boolean;
+  /** Quando subiu ao servidor. Ausente = pendente. */
+  sincronizadoEm?: number;
 }
 
 /** Único registro NÃO cifrado. Nada aqui é secreto. */
@@ -35,7 +48,7 @@ export const CURRENT_SCHEMA_VERSION = 1;
  * Se o banco no disco estiver acima disto, o JavaScript rodando é velho —
  * ver AppDesatualizadoError abaixo.
  */
-export const DEXIE_VERSION = 1;
+export const DEXIE_VERSION = 2;
 
 /**
  * Erro sinalizando que o banco foi migrado por uma versão mais nova da Arca
@@ -63,13 +76,38 @@ class ArcaDatabase extends Dexie {
     super('arca');
     // Índices só sobre campos em claro. Payload cifrado não é indexável —
     // é por isso que existe o índice em memória montado no unlock.
-    this.version(DEXIE_VERSION).stores({
+    // v1: schema original, antes do sync.
+    this.version(1).stores({
       meta: 'id',
       transactions: 'id, profileId',
       categories: 'id, profileId',
       plans: 'id, profileId',
       notes: 'id, profileId',
     });
+
+    // v2: campos de sync. O indice [profileId+sincronizadoEm] e o que o motor
+    // de sync usa para achar o que ainda nao subiu.
+    this.version(2)
+      .stores({
+        meta: 'id',
+        transactions: 'id, profileId, atualizadoEm, [profileId+sincronizadoEm]',
+        categories: 'id, profileId, atualizadoEm, [profileId+sincronizadoEm]',
+        plans: 'id, profileId, atualizadoEm, [profileId+sincronizadoEm]',
+        notes: 'id, profileId, atualizadoEm, [profileId+sincronizadoEm]',
+      })
+      .upgrade(async (tx) => {
+        // Tudo que ja existe entra como pendente de sync: sem sincronizadoEm.
+        const agora = Date.now();
+        for (const nome of ['transactions', 'categories', 'plans', 'notes']) {
+          await tx
+            .table(nome)
+            .toCollection()
+            .modify((r: EncryptedRecord) => {
+              r.atualizadoEm = agora;
+              r.apagado = false;
+            });
+        }
+      });
   }
 
   /**

@@ -5,7 +5,12 @@ import { bus } from '@/core/events/bus';
 import { installShortcuts } from '@/core/history/shortcuts';
 import { applyUpdate, registerServiceWorker } from '@/core/platform/serviceWorker';
 import { registry } from '@/core/registry/ModuleRegistry';
-import { abrirBanco, AppDesatualizadoError, onAppDesatualizado } from '@/core/storage/db';
+import {
+  abrirBanco,
+  AppDesatualizadoError,
+  DEXIE_VERSION,
+  onAppDesatualizado,
+} from '@/core/storage/db';
 import { backupModule } from '@/modules/backup';
 import { categoriesModule } from '@/modules/categories';
 import { notesModule } from '@/modules/notes';
@@ -41,7 +46,10 @@ registry.register(planModule);
 registry.register(backupModule);
 registry.register(recurrencesModule);
 registry.register(notesModule);
-registry.applySchema(2);
+// Modulos declaram tabelas SEMPRE acima da versao do nucleo. Numero fixo aqui
+// vira bomba-relogio: no dia que DEXIE_VERSION alcanca o valor, addModuleTables
+// rejeita e o app nao abre.
+registry.applySchema(DEXIE_VERSION + 1);
 
 function App() {
   const [unlocked, setUnlocked] = useState(false);
